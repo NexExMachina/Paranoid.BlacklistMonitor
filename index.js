@@ -47,6 +47,9 @@ function fetchAndProcessBMData() {
                 const ip = server.attributes.ip;
                 const port = server.attributes.port;
 
+                // Log each server as it is processed
+                console.log(`Processing server: ${name}`);
+
                 serverList.push({name, ip, port});
             }
 
