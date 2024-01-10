@@ -17,6 +17,7 @@ client.login(process.env.DISCORD_BOT_TOKEN).then(() => {
     setInterval(fetchAndProcessBMData, 60000); // Check every 60 seconds
 });
 
+
 // Create a test server object for a banned server
 const testBannedServer = {
     name: "Test Banned Server",
@@ -25,11 +26,13 @@ const testBannedServer = {
 };
 
 // Send a test webhook notification for a banned server
-// sendWebhookNotification(testBannedServer, true); // true indicates the server is banned
+ sendWebhookNotification(testBannedServer, true); // true indicates the server is banned
 // sendWebhookNotification(testBannedServer, false); // true indicates the server is banned
 
 // Define the BM API URL
-const bmApiUrl = process.env.BM_API;
+// const bmApiUrl = process.env.BM_API;
+const bmApiUrl = `https://api.battlemetrics.com/servers?filter[organizations]=${process.env.BM_ORG_ID}&page[size]=100`;
+
 
 // Function to fetch and process data from BM API
 function fetchAndProcessBMData() {
@@ -37,19 +40,29 @@ function fetchAndProcessBMData() {
     axios.get(bmApiUrl)
         .then(response => {
             console.log("Data fetched from BM API. Processing data...");
-            const data = response.data;
+            const data = response.data.data;
             const serverList = [];
 
-            // Process each country
-            for (const country in data) {
-                data[country].forEach(server => {
-                    const name = server.name;
-                    const ip = server.ip;
-                    const port = server.port + 2;
+            for(const server of data) {
+                const name = server.attributes.name;
+                const ip = server.attributes.ip;
+                const port = server.attributes.port;
 
-                    serverList.push({name, ip, port});
-                });
+                serverList.push({name, ip, port});
             }
+
+            console.log(serverList)
+
+            // Process each country
+            // for (const country in data) {
+            //     data[country].forEach(server => {
+            //         const name = server.name;
+            //         const ip = server.ip;
+            //         const port = server.port + 2;
+            //
+            //         serverList.push({name, ip, port});
+            //     });
+            // }
 
             console.log("Checking for banned and unbanned servers...");
             checkBannedServers(serverList);
@@ -96,13 +109,14 @@ function checkBannedServers(serverList) {
 // Function to send a webhook notification
 function sendWebhookNotification(server, isBanned) {
     const webhookUrl = process.env.BAN_WEBHOOK;
+    const alertRole = process.env.ALERT_ROLE; // Get ALERT_ROLE from the environment variables
     const color = isBanned ? 0xFF0000 : 0x00FF00; // Red for banned, green for unbanned
     const status = isBanned ? 'banned' : 'unbanned';
 
     console.log(`Sending ${status} notification for server: ${server.name}`);
 
     const webhookData = {
-        content: isBanned ? "<@&805935677131980841><@&808818609743855656><@&1083121065833791528>" : "<@&805935677131980841><@&808818609743855656><@&1083121065833791528>",
+        content: `<@&${alertRole}>`, // Use ALERT_ROLE from the environment variables
         embeds: [
             {
                 title: `SERVER ${status.toUpperCase()} BY FACEPUNCH`,
@@ -112,13 +126,11 @@ function sendWebhookNotification(server, isBanned) {
                     text: isBanned
                         ? "Use the /blacklist command in RSO or contact Ali/JakB"
                         : "Please announce on discord Connectivity Issues are resolved"
-                    // icon_url: "URL_of_your_icon_image" // Optional: Add URL if you want an icon in the footer
                 }
             },
         ],
         attachments: []
     };
-
 
     axios.post(webhookUrl, webhookData)
         .then(() => console.log(`Notification sent for ${status} server: ${server.name}`))
