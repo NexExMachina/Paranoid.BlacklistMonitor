@@ -51,7 +51,7 @@ function fetchAndProcessBMData() {
                 serverList.push({name, ip, port});
             }
 
-            console.log(serverList)
+            //console.log(serverList)
 
             // Process each country
             // for (const country in data) {
