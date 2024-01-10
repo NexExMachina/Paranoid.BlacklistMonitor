@@ -26,7 +26,7 @@ const testBannedServer = {
 };
 
 // Send a test webhook notification for a banned server
- sendWebhookNotification(testBannedServer, true); // true indicates the server is banned
+// sendWebhookNotification(testBannedServer, true); // true indicates the server is banned
 // sendWebhookNotification(testBannedServer, false); // true indicates the server is banned
 
 // Define the BM API URL
