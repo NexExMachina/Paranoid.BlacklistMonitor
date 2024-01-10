@@ -30,7 +30,6 @@ const testBannedServer = {
 // sendWebhookNotification(testBannedServer, false); // true indicates the server is banned
 
 // Define the BM API URL
-// const bmApiUrl = process.env.BM_API;
 const bmApiUrl = `https://api.battlemetrics.com/servers?filter[organizations]=${process.env.BM_ORG_ID}&page[size]=100`;
 
 
@@ -50,19 +49,6 @@ function fetchAndProcessBMData() {
 
                 serverList.push({name, ip, port});
             }
-
-            //console.log(serverList)
-
-            // Process each country
-            // for (const country in data) {
-            //     data[country].forEach(server => {
-            //         const name = server.name;
-            //         const ip = server.ip;
-            //         const port = server.port + 2;
-            //
-            //         serverList.push({name, ip, port});
-            //     });
-            // }
 
             console.log("Checking for banned and unbanned servers...");
             checkBannedServers(serverList);
